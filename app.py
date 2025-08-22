@@ -18,3 +18,6 @@ def channel(name):
 @app.route("/")
 def index():
     return "Peers-TV proxy server is running!"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000)
