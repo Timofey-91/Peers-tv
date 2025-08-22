@@ -1,0 +1,34 @@
+name: Update TVC Playlists
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # запуск каждый день в 00:00 UTC
+  workflow_dispatch:      # возможность запустить вручную
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install --upgrade pip
+
+      - name: Generate m3u8 files
+        env:
+          PEERS_TOKEN: ${{ secrets.PEERS_TOKEN }}
+        run: python generate_tvc.py
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: .
+          keep_files: true
