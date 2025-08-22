@@ -2,7 +2,7 @@ from flask import Flask, send_file
 import os
 
 app = Flask(__name__)
-OUTPUT_DIR = "links/tvc"  # папка, где tvc_peers.py сохраняет .m3u8
+OUTPUT_DIR = os.path.join(os.getcwd(), "links", "tvc")  # полный путь
 
 @app.route("/channel/<name>.m3u8")
 def get_channel(name):
@@ -12,4 +12,5 @@ def get_channel(name):
     return send_file(path, mimetype="application/vnd.apple.mpegurl")
 
 if __name__ == "__main__":
+    print("Serving from:", OUTPUT_DIR)
     app.run(host="0.0.0.0", port=8000)
