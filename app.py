@@ -6,7 +6,7 @@ app = Flask(__name__)
 # Папка с m3u8 файлами
 BASE_DIR = os.path.join(os.getcwd(), "links", "tvc")
 
-@app.route("/channel/<name>.m3u8")
+@app.route("/channel/<name>")
 def get_channel(name):
     # Логируем, что есть в папке
     if not os.path.exists(BASE_DIR):
