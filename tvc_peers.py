@@ -42,7 +42,7 @@ if __name__ == "__main__":
         "tvc": 0,
         "tvc_plus2": 7200,
         "tvc_plus4": 14400,
-        "tvc_plus7": 25200,
+        "tvc_plus7": 28800,
     }
 
     for name, offset in offsets.items():
