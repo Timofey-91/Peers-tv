@@ -8,7 +8,7 @@ BASE_DIR = os.path.join(os.getcwd(), "links", "tvc")
 
 @app.route("/channel/<name>.m3u8")
 def get_channel(name):
-    filepath = os.path.join(BASE_DIR, f"{name}.m3u8")
+    filepath = os.path.join(BASE_DIR, f"{name}")
     if not os.path.exists(filepath):
         return "Channel not found", 404
     return send_file(filepath, mimetype="application/vnd.apple.mpegurl")
