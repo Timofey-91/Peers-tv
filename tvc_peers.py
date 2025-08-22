@@ -50,5 +50,5 @@ if __name__ == "__main__":
 
     for name, offset in offsets.items():
         url = get_stream_url(channel, channel_id, token, offset)
-        save_m3u8(f"{name}.m3u8", url)
+        save_m3u8(f"{name}", url)
         print(f"{name} → {url}")
