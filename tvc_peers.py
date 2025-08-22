@@ -61,5 +61,10 @@ if __name__ == "__main__":
         "tvc": 0,         # обычный
         "tvc_plus2": 7200,   # +2 часа
         "tvc_plus4": 14400,  # +4 часа
-        "tvc_plus7": 25200
+        "tvc_plus7": 25200,  # +7 часов
     }
+
+    for name, offset in offsets.items():
+        url = get_stream_url(channel, channel_id, token, offset)
+        save_m3u8(f"{name}.m3u8", url)
+        print(f"{name} → {url}")
