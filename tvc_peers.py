@@ -22,12 +22,12 @@ def get_stream_url(channel, channel_id, token, offset):
     return f"{base_url}?token={token}&offset={offset}"
 
 def save_m3u8(filename, stream_url):
+    """Сохраняем .m3u8 только с прямой ссылкой для Televizo"""
     filepath = os.path.join(output_dir, filename)
     with open(filepath, "w", encoding="utf-8") as file:
-        file.write("#EXTM3U\n")
-        file.write("#EXT-X-VERSION:3\n")
-        file.write(f"{stream_url}\n")
+        file.write(stream_url + "\n")
     print(f"Сохранил: {filepath}")
+
 
 if __name__ == "__main__":
     token = get_token()
