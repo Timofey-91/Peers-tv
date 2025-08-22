@@ -1,0 +1,4 @@
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=1
+http://api.peers.tv/timeshift/tvc/16/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY2Nlc3MiLCJleHAiOjE3NTU5NjkwODYsImlhdCI6MTc1NTg4MjY4NiwiY2lkIjo2LCJ1aWQiOjkzODk5OTg1MywicmVnIjpmYWxzZSwiaXAiOjgyNjE2Mjg4LCJhZHVsdCI6ZmFsc2V9.sP8UZp3NZhkFN6aOxvU3ASfbF_eN87MDucdkWL6hp3I&offset=25200
