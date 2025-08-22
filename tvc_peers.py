@@ -11,8 +11,8 @@ REFERRER = "https://peers.tv/"
 CHANNELS = {
     "tvc": {"id": 16, "offset": 0},
     "tvc_plus2": {"id": 16, "offset": 7200},
-    "tvc_plus4": {"id": 16, "offset": 14400},
-    "tvc_plus7": {"id": 16, "offset": 25200 + 10800},  # +1 час для Владивостока
+    "tvc_plus4": {"id": 16, "offset": 25200},
+    "tvc_plus7": {"id": 16, "offset": 39600},  # +1 час для Владивостока
 }
 
 def get_token():
