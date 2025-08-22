@@ -8,12 +8,10 @@ os.makedirs(output_dir, exist_ok=True)
 USER_AGENT = "Dalvik/2.1.0 (Linux; U; Android 8.0.1;)"
 REFERRER = "https://peers.tv/"
 
-CHANNELS = {
-    "tvc": 16,
-    "tvc_plus2": 16,
-    "tvc_plus4": 16,
-    "tvc_plus7": 16,
-}
+"tvc": {"id": 16, "offset": 0},
+    "tvc_plus2": {"id": 16, "offset": 7200},
+    "tvc_plus4": {"id": 16, "offset": 14400},  # можно заменить на реальную ссылку через API
+    "tvc_plus7": {"id": 16, "offset": 25200 + 10800},  # Хабаровск
 
 def get_token():
     url = "http://api.peers.tv/auth/2/token"
