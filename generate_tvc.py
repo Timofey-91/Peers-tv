@@ -1,35 +1,64 @@
+import requests
+import re
 import os
 
-TOKEN = os.getenv("PEERS_TOKEN")
-if not TOKEN:
-    raise ValueError("Ошибка: токен не найден. Установи PEERS_TOKEN в GitHub Secrets.")
+# Папка для сохранения
+output_dir = "links/tvc"
+os.makedirs(output_dir, exist_ok=True)
 
-CHANNEL_NAME = "tvc"
-CHANNEL_ID = 16
+USER_AGENT = "Dalvik/2.1.0 (Linux; U; Android 8.0.1;)"
+REFERRER = "https://peers.tv/"
 
-# Сдвиги (в секундах): 0, +2 часа, +4 часа, +7 часов
-OFFSETS = {
-    "tvc": 10,              # без сдвига (10 секунд для старта)
-    "tvc_plus2": 2 * 3600,  # +2 часа
-    "tvc_plus4": 4 * 3600,  # +4 часа
-    "tvc_plus7": 7 * 3600,  # +7 часов
-}
+# EXT параметры (оставил, если вдруг будешь смотреть в VLC)
+EXTOPT = (
+    "#EXTVLCOPT:adaptive-logic=highest\n"
+    "#EXTVLCOPT:demux=adaptive,any\n"
+    "#EXTVLCOPT:adaptive-use-access\n"
+    f"#EXTVLCOPT:http-user-agent={USER_AGENT}\n"
+    f"#EXTVLCOPT:http-referrer={REFERRER}\n"
+    "#EXTVLCOPT:no-ts-cc-check\n"
+    "#EXTVLCOPT:INT-SCRIPT-PARAMS=peers_tv"
+)
 
-def build_url(channel_name, channel_id, offset=0):
-    return f"http://api.peers.tv/timeshift/{channel_name}/{channel_id}/playlist.m3u8?token={TOKEN}&offset={offset}"
+def get_token():
+    """Получаем access_token с PeersTV"""
+    url = "http://api.peers.tv/auth/2/token"
+    payload = "grant_type=inetra%3Aanonymous&client_id=29783051&client_secret=b4d4eb438d760da95f0acb5bc6b5c760"
+    headers = {"User-Agent": USER_AGENT, "Content-Type": "application/x-www-form-urlencoded"}
+    response = requests.post(url, data=payload, headers=headers, timeout=8)
 
-def save_m3u8(filename, url):
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write("#EXTM3U\n")
-        f.write("#EXT-X-VERSION:3\n")
-        f.write("#EXT-X-STREAM-INF:PROGRAM-ID=1\n")
-        f.write(url + "\n")
+    if response.status_code != 200:
+        return None
 
-def main():
-    for name, offset in OFFSETS.items():
-        url = build_url(CHANNEL_NAME, CHANNEL_ID, offset)
-        save_m3u8(f"{name}.m3u8", url)
-        print(f"Сгенерирован {name}.m3u8 → {url}")
+    return re.search(r'"access_token":"([^"]+)"', response.text).group(1)
+
+def get_stream_url(channel, channel_id, token, offset):
+    """Собираем ссылку для нужного оффсета"""
+    base_url = f"http://api.peers.tv/timeshift/{channel}/{channel_id}/playlist.m3u8"
+    return f"{base_url}?token={token}&offset={offset}"
+
+def save_m3u8(filename, stream_url):
+    """Сохраняем .m3u8"""
+    filepath = os.path.join(output_dir, filename)
+    with open(filepath, "w", encoding="utf-8") as file:
+        file.write("#EXTM3U\n")
+        file.write("#EXT-X-VERSION:3\n")
+        file.write("#EXT-X-STREAM-INF:PROGRAM-ID=1\n")
+        # file.write(f"{EXTOPT}\n")  # можно включить если нужно для VLC
+        file.write(f"{stream_url}\n")
+    print(f"Сохранил: {filepath}")
 
 if __name__ == "__main__":
-    main()
+    token = get_token()
+    if not token:
+        print("Ошибка: не удалось получить токен.")
+        exit()
+
+    channel = "tvc"
+    channel_id = 16  # базовый ID
+
+    offsets = {
+        "tvc": 0,         # обычный
+        "tvc_plus2": 7200,   # +2 часа
+        "tvc_plus4": 14400,  # +4 часа
+        "tvc_plus7": 25200_
