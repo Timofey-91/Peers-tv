@@ -8,10 +8,10 @@ USER_AGENT = "Dalvik/2.1.0 (Linux; U; Android 8.0.1;)"
 REFERRER = "https://peers.tv/"
 
 CHANNELS = {
-    "tvc": 16,
-    "tvc_plus2": 16,
-    "tvc_plus4": 16,
-    "tvc_plus7": 16,
+    "tvc": 0,
+    "tvc_plus2": 7200,
+    "tvc_plus4": 14400,
+    "tvc_plus7": 25200 + 3600,
 }
 
 def get_token():
