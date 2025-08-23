@@ -1,53 +1,63 @@
-from flask import Flask, Response, abort
+import os
 import requests
-import re
+from flask import Flask, Response, abort
 
 app = Flask(__name__)
 
+PEERS_API = "http://api.peers.tv/peerstv/2/channels/"
 USER_AGENT = "Dalvik/2.1.0 (Linux; U; Android 8.0.1;)"
-REFERRER = "https://peers.tv/"
 
-CHANNELS = {
-    "tvc": 0,
-    "tvc_plus2": 7200,
-    "tvc_plus4": 14400,
-    "tvc_plus7": 25200 + 3600,
-}
 
-def get_token():
-    url = "http://api.peers.tv/auth/2/token"
-    payload = "grant_type=inetra%3Aanonymous&client_id=29783051&client_secret=b4d4eb438d760da95f0acb5bc6b5c760"
-    headers = {"User-Agent": USER_AGENT, "Content-Type": "application/x-www-form-urlencoded"}
-    r = requests.post(url, data=payload, headers=headers, timeout=8)
-    r.raise_for_status()
-    match = re.search(r'"access_token":"([^"]+)"', r.text)
-    if not match:
+def get_channels():
+    """Загружаем список каналов с Peers.TV API"""
+    resp = requests.get(PEERS_API, headers={"User-Agent": USER_AGENT})
+    if resp.status_code != 200:
         return None
-    return match.group(1)
+    return resp.json()
 
-@app.route("/channel/<name>.m3u8")
-def channel(name):
-    if name not in CHANNELS:
-        return abort(404)
 
-    token = get_token()
-    if not token:
-        return abort(500, "Не удалось получить токен PeersTV")
+def get_channel_id(alias: str):
+    """Находим id канала по alias (например 'tvc+4')"""
+    channels = get_channels()
+    if not channels:
+        return None
 
-    ch = CHANNELS[name]
-    stream_url = f"http://api.peers.tv/timeshift/tvc/{ch['id']}/playlist.m3u8?token={token}&offset={ch['offset']}"
+    for ch in channels.get("channels", []):
+        if ch.get("alias") == alias:
+            return ch.get("id")
+    return None
 
-    try:
-        r = requests.get(stream_url, headers={"User-Agent": USER_AGENT, "Referer": REFERRER}, timeout=10, stream=True)
-        r.raise_for_status()
-    except requests.RequestException:
-        return abort(502, "Ошибка при получении потока PeersTV")
 
-    return Response(r.iter_content(chunk_size=1024), content_type="application/vnd.apple.mpegurl")
+def get_stream_url(channel_id: int):
+    """Получаем реальную ссылку для timeshift"""
+    url = f"http://api.peers.tv/timeshift/{channel_id}/playlist.m3u8"
+    headers = {"User-Agent": USER_AGENT, "Referer": "https://peers.tv/"}
+    resp = requests.get(url, headers=headers, allow_redirects=False)
+
+    if resp.status_code in (302, 301):
+        return resp.headers.get("Location")  # реальный m3u8
+    elif resp.status_code == 200:
+        return url
+    return None
+
+
+@app.route("/channel/<alias>.m3u8")
+def channel(alias):
+    """Прокси-ссылка для канала"""
+    channel_id = get_channel_id(alias)
+    if not channel_id:
+        return abort(404, f"Канал {alias} не найден")
+
+    real_url = get_stream_url(channel_id)
+    if not real_url:
+        return abort(502, "Не удалось получить ссылку")
+
+    # Делаем прокси-запрос
+    r = requests.get(real_url, headers={"User-Agent": USER_AGENT}, stream=True)
+    return Response(r.iter_content(chunk_size=8192),
+                    content_type="application/vnd.apple.mpegurl")
+
 
 @app.route("/")
 def index():
-    return "Peers-TV proxy server is running!"
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    return "Peers.TV proxy работает 🚀. Пример: /channel/tvc+4.m3u8"
