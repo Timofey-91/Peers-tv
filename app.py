@@ -3,23 +3,13 @@ import os
 
 app = Flask(__name__)
 
-# Папка с m3u8 файлами
 BASE_DIR = os.path.join(os.getcwd(), "links", "tvc")
 
 @app.route("/channel/<name>.m3u8")
 def get_channel(name):
-    # Логируем, что есть в папке
-    if not os.path.exists(BASE_DIR):
-        print(f"Папка не найдена: {BASE_DIR}")
-    else:
-        print(f"Файлы в папке {BASE_DIR}: {os.listdir(BASE_DIR)}")
-
     filepath = os.path.join(BASE_DIR, f"{name}.m3u8")
     if not os.path.exists(filepath):
-        print(f"Файл не найден: {filepath}")
         return "Channel not found", 404
-
-    print(f"Отдаём файл: {filepath}")
     return send_file(filepath, mimetype="application/vnd.apple.mpegurl")
 
 @app.route("/")
