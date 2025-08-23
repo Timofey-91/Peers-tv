@@ -48,9 +48,9 @@ if __name__ == "__main__":
 
     offsets = {
         "tvc": 0,
-        "tvc_plus2": 7200,
-        "tvc_plus4": 14400,
-        "tvc_plus7": 25200 + 3600,  # +1 час для Владивостока
+        "tvc_plus2": 10,
+        "tvc_plus4": 10,
+        "tvc_plus7": 10,  # +1 час для Владивостока
     }
 
     for name, offset in offsets.items():
