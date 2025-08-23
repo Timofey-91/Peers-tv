@@ -1,97 +1,86 @@
+import os
+import json
+import time
 import requests
 from flask import Flask, Response, jsonify
 
 app = Flask(__name__)
 
-API_BASE = "http://api.peers.tv"
-DEVICE_ID = "simpletv"   # можно любое, peers.tv примет
-PROFILE = "2"            # профиль (в Lua тоже был "2")
+CACHE_FILE = "cache.json"
+CACHE_TTL = 24 * 3600  # 24 часа
+DIMONOVICH_URL = "https://raw.githubusercontent.com/Dimonovich/TV/Dimonovich/FREE/TV"
 
-# какие каналы оставляем
-CHANNELS_TO_KEEP = ["ТВЦ", "ТВЦ+2", "ТВЦ+4"]
-
-# кэш для токена и плейлиста
-auth_token = None
-channels_cache = {}
+CHANNELS_TO_SERVE = ["ТВЦ", "ТВЦ +2", "ТВЦ +4"]
 
 
-def get_auth_token():
-    """Авторизация и получение access_token"""
-    global auth_token
-    url = f"{API_BASE}/auth/{PROFILE}/token"
-    payload = {"device": DEVICE_ID}
+def fetch_channels():
+    """Скачиваем плейлист Dimonovich и вытаскиваем только нужные каналы"""
     try:
-        r = requests.post(url, json=payload, timeout=10)
-        r.raise_for_status()
-        data = r.json()
-        auth_token = data.get("access_token")
-        return auth_token
+        resp = requests.get(DIMONOVICH_URL, timeout=10)
+        resp.raise_for_status()
+        lines = resp.text.splitlines()
+
+        result = {}
+        current_name = None
+
+        for line in lines:
+            if line.startswith("#EXTINF"):
+                for name in CHANNELS_TO_SERVE:
+                    if name in line:
+                        current_name = name
+                        break
+            elif line.startswith("http") and current_name:
+                result[current_name] = line.strip()
+                current_name = None
+
+        return result
     except Exception as e:
-        print(f"[ERROR] Не удалось получить токен: {e}")
-        return None
-
-
-def load_playlist():
-    """Загружаем плейлист и фильтруем каналы"""
-    global channels_cache
-    token = auth_token or get_auth_token()
-    if not token:
+        print(f"[ERROR] Не удалось загрузить список каналов: {e}")
         return {}
 
-    url = f"{API_BASE}/iptv/{PROFILE}/playlist.m3u?access_token={token}"
-    try:
-        r = requests.get(url, timeout=10)
-        r.raise_for_status()
-        text = r.text
-    except Exception as e:
-        print(f"[ERROR] Не удалось загрузить плейлист: {e}")
-        return {}
 
-    # Парсим M3U вручную
-    channels = {}
-    current_name = None
-    for line in text.splitlines():
-        if line.startswith("#EXTINF:"):
-            # имя канала после запятой
-            if "," in line:
-                current_name = line.split(",", 1)[1].strip()
-        elif line.endswith(".m3u8") and current_name:
-            if any(ch in current_name for ch in CHANNELS_TO_KEEP):
-                channels[current_name] = line.strip()
-            current_name = None
-
-    channels_cache = channels
-    return channels
+def load_cache():
+    """Загружаем кеш из файла, если он свежий"""
+    if os.path.exists(CACHE_FILE):
+        mtime = os.path.getmtime(CACHE_FILE)
+        if time.time() - mtime < CACHE_TTL:
+            with open(CACHE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+    return {}
 
 
-@app.route("/")
-def index():
-    return jsonify({
-        "status": "ok",
-        "channels": list(channels_cache.keys()) or "Нет загруженных каналов"
-    })
+def save_cache(data):
+    with open(CACHE_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
 
 @app.route("/channel/<name>.m3u8")
-def get_channel(name):
-    """Отдаём m3u8 для конкретного канала"""
-    if not channels_cache:
-        load_playlist()
+def serve_channel(name):
+    cache = load_cache()
 
-    # ищем совпадение по имени
-    for ch_name, url in channels_cache.items():
-        if name.lower() in ch_name.lower().replace(" ", ""):
-            try:
-                r = requests.get(url, stream=True, timeout=10)
-                return Response(r.iter_content(chunk_size=1024),
-                                content_type="application/vnd.apple.mpegurl")
-            except Exception as e:
-                return Response(f"# Ошибка при загрузке: {e}", mimetype="text/plain")
+    if not cache:
+        cache = fetch_channels()
+        if cache:
+            save_cache(cache)
 
-    return Response("# Канал не найден", mimetype="text/plain")
+    channel_name = name.replace("_", " ").upper()
+
+    for ch, url in cache.items():
+        if ch.upper() == channel_name:
+            return Response(f"#EXTM3U\n#EXTINF:-1,{ch}\n{url}", mimetype="application/vnd.apple.mpegurl")
+
+    return Response("#EXTM3U\n#EXTINF:-1,Канал не найден\n", mimetype="application/vnd.apple.mpegurl")
+
+
+@app.route("/channels")
+def list_channels():
+    cache = load_cache()
+    if not cache:
+        cache = fetch_channels()
+        if cache:
+            save_cache(cache)
+    return jsonify(cache)
 
 
 if __name__ == "__main__":
-    get_auth_token()
-    load_playlist()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
