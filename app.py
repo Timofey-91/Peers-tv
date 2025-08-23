@@ -1,68 +1,63 @@
-import os
 import requests
+import xml.etree.ElementTree as ET
 from flask import Flask, Response, abort
 
 app = Flask(__name__)
 
-PEERS_API = "http://api.peers.tv/peerstv/2/channels/"
-USER_AGENT = "Dalvik/2.1.0 (Linux; U; Android 8.0.1;)"
+PEERS_API = "http://api.peers.tv/peerstv/2/"
+PLAYER_UA = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:35.0) Gecko/20100101 Firefox/35.0"
 
+# Кэшируем список каналов (чтобы не дёргать API каждый раз)
+channel_cache = {}
 
-def get_channels():
-    """Загружаем список каналов с Peers.TV API"""
-    resp = requests.get(PEERS_API, headers={"User-Agent": USER_AGENT})
-    if resp.status_code != 200:
-        return None
-    return resp.json()
+def load_channels():
+    """Загружаем список каналов из Peers.TV"""
+    global channel_cache
+    try:
+        resp = requests.get(PEERS_API, headers={"User-Agent": PLAYER_UA}, timeout=10)
+        resp.raise_for_status()
+        root = ET.fromstring(resp.content)
 
-
-def get_channel_id(alias: str):
-    """Находим id канала по alias (например 'tvc+4')"""
-    channels = get_channels()
-    if not channels:
-        return None
-
-    for ch in channels.get("channels", []):
-        if ch.get("alias") == alias:
-            return ch.get("id")
-    return None
-
-
-def get_stream_url(channel_id: int):
-    """Получаем реальную ссылку для timeshift"""
-    url = f"http://api.peers.tv/timeshift/{channel_id}/playlist.m3u8"
-    headers = {"User-Agent": USER_AGENT, "Referer": "https://peers.tv/"}
-    resp = requests.get(url, headers=headers, allow_redirects=False)
-
-    if resp.status_code in (302, 301):
-        return resp.headers.get("Location")  # реальный m3u8
-    elif resp.status_code == 200:
-        return url
-    return None
-
-
-@app.route("/channel/<alias>.m3u8")
-def channel(alias):
-    """Прокси-ссылка для канала"""
-    channel_id = get_channel_id(alias)
-    if not channel_id:
-        return abort(404, f"Канал {alias} не найден")
-
-    real_url = get_stream_url(channel_id)
-    if not real_url:
-        return abort(502, "Не удалось получить ссылку")
-
-    # Делаем прокси-запрос
-    r = requests.get(real_url, headers={"User-Agent": USER_AGENT}, stream=True)
-    return Response(r.iter_content(chunk_size=8192),
-                    content_type="application/vnd.apple.mpegurl")
-
+        namespace = {"p": "http://xspf.org/ns/0/"}
+        channels = {}
+        for track in root.findall("./p:trackList/p:track", namespace):
+            title = track.find("./p:title", namespace).text.strip()
+            url = track.find("./p:location", namespace).text.strip()
+            channels[title.lower()] = url
+        channel_cache = channels
+        return channels
+    except Exception as e:
+        print(f"[ERROR] Не удалось загрузить список каналов: {e}")
+        return {}
 
 @app.route("/")
 def index():
-    return "Peers.TV proxy работает 🚀. Пример: /channel/tvc+4.m3u8"
+    """Просто список доступных каналов"""
+    if not channel_cache:
+        load_channels()
+    return "<br>".join([f"/channel/{name}.m3u8" for name in channel_cache.keys()])
 
+@app.route("/channel/<name>.m3u8")
+def get_channel(name):
+    """Получение m3u8 ссылки по названию канала"""
+    if not channel_cache:
+        load_channels()
+
+    # нормализуем название
+    key = name.lower().replace("+", "plus").replace("%20", " ")
+
+    if key not in channel_cache:
+        abort(404, f"Канал '{name}' не найден")
+
+    real_url = channel_cache[key]
+
+    # можно либо просто редиректить, либо проксировать
+    try:
+        resp = requests.get(real_url, headers={"User-Agent": PLAYER_UA}, timeout=10)
+        return Response(resp.content, mimetype="application/vnd.apple.mpegurl")
+    except Exception as e:
+        abort(502, f"Ошибка получения потока: {e}")
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    load_channels()
+    app.run(host="0.0.0.0", port=5000, debug=True)
