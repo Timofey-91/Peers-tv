@@ -20,17 +20,22 @@ def get_token():
     return re.search(r'"access_token":"([^"]+)"', response.text).group(1)
 
 def get_stream_url(channel, channel_id, token, offset):
-    """Собираем ссылку для нужного оффсета"""
+    """Получаем оригинальный плейлист PeersTV"""
     base_url = f"http://api.peers.tv/timeshift/{channel}/{channel_id}/playlist.m3u8"
     return f"{base_url}?token={token}&offset={offset}"
 
 def save_m3u8(filename, stream_url):
-    """Сохраняем .m3u8 с правильной структурой для Televizo"""
-    filepath = os.path.join(output_dir, filename)
-    content = f"#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-STREAM-INF:PROGRAM-ID=1\n{stream_url}\n"
-    with open(filepath, "w", encoding="utf-8") as file:
-        file.write(content)
-    print(f"Сохранил: {filepath}")
+    """Скачиваем и сохраняем оригинальный .m3u8"""
+    try:
+        headers = {"User-Agent": USER_AGENT, "Referer": REFERRER}
+        r = requests.get(stream_url, headers=headers, timeout=10)
+        r.raise_for_status()
+        filepath = os.path.join(output_dir, filename)
+        with open(filepath, "wb") as f:
+            f.write(r.content)
+        print(f"Сохранил: {filepath}")
+    except Exception as e:
+        print(f"Ошибка при скачивании {filename}: {e}")
 
 if __name__ == "__main__":
     token = get_token()
