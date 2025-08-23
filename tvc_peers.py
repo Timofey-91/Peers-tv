@@ -50,7 +50,7 @@ if __name__ == "__main__":
         "tvc": 0,
         "tvc_plus2": 7200,
         "tvc_plus4": 10,
-        "tvc_plus7": 25200,  # +1 час для Владивостока
+        "tvc_plus7": 36000,  # +1 час для Владивостока
     }
 
     for name, offset in offsets.items():
