@@ -61,3 +61,8 @@ def channel(alias):
 @app.route("/")
 def index():
     return "Peers.TV proxy работает 🚀. Пример: /channel/tvc+4.m3u8"
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
