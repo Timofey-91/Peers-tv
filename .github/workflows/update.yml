@@ -1,9 +1,9 @@
-name: Update IPTV Playlist
+name: Update IPTV links
 
 on:
   schedule:
-    - cron: "0 0 * * *"  # каждый день в 00:00 UTC
-  workflow_dispatch:      # возможность запустить вручную
+    - cron: "0 0 * * *"   # раз в сутки в 00:00 UTC
+  workflow_dispatch:       # можно запускать руками из Actions
 
 jobs:
   update:
@@ -16,54 +16,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.10"
 
       - name: Install dependencies
-        run: pip install requests
-
-      - name: Update IPTV playlist
         run: |
-          python - << 'EOF'
-          import requests, json
+          pip install requests
 
-          DIMONOVICH_URL = "https://raw.githubusercontent.com/Dimonovich/TV/Dimonovich/FREE/TV"
-          CHANNELS_TO_SERVE = ["ТВЦ", "ТВЦ +2", "ТВЦ +4"]
-
-          resp = requests.get(DIMONOVICH_URL, timeout=10)
-          resp.raise_for_status()
-          lines = resp.text.splitlines()
-
-          result = {}
-          current_name = None
-          playlist = ["#EXTM3U"]
-
-          for line in lines:
-              if line.startswith("#EXTINF"):
-                  for name in CHANNELS_TO_SERVE:
-                      if name in line:
-                          current_name = name
-                          playlist.append(line)
-                          break
-              elif line.startswith("http") and current_name:
-                  result[current_name] = line.strip()
-                  playlist.append(line.strip())
-                  current_name = None
-
-          # сохраняем cache.json
-          with open("cache.json", "w", encoding="utf-8") as f:
-              json.dump(result, f, ensure_ascii=False, indent=2)
-
-          # сохраняем iptv.m3u8
-          with open("iptv.m3u8", "w", encoding="utf-8") as f:
-              f.write("\n".join(playlist))
-
-          print(f"[OK] Обновлено {len(result)} каналов")
-          EOF
+      - name: Update playlist
+        run: |
+          python scripts/update_m3u.py   # твой скрипт для обновления ссылок
 
       - name: Commit and push changes
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add iptv.m3u8 cache.json
-          git commit -m "Update IPTV playlist" || echo "No changes"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add FREE/TV
+          git commit -m "Auto update playlist $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes"
           git push
