@@ -1,86 +1,44 @@
-import os
-import json
-import time
 import requests
-from flask import Flask, Response, jsonify
+from flask import Flask, Response
 
 app = Flask(__name__)
 
-CACHE_FILE = "cache.json"
-CACHE_TTL = 24 * 3600  # 24 часа
-DIMONOVICH_URL = "https://raw.githubusercontent.com/Dimonovich/TV/Dimonovich/FREE/TV"
+GITHUB_URL = "https://raw.githubusercontent.com/Dimonovich/TV/Dimonovich/FREE/TV"
 
-CHANNELS_TO_SERVE = ["ТВЦ", "ТВЦ +2", "ТВЦ +4"]
+# Сопоставляем наши роуты с названиями каналов в плейлисте
+CHANNEL_MAP = {
+    "tvc": "ТВЦ",
+    "tvc+2": "ТВЦ +2",
+    "tvc+4": "ТВЦ +4",
+}
 
-
-def fetch_channels():
-    """Скачиваем плейлист Dimonovich и вытаскиваем только нужные каналы"""
+def get_channel_url(channel_name):
     try:
-        resp = requests.get(DIMONOVICH_URL, timeout=10)
+        resp = requests.get(GITHUB_URL, timeout=10)
         resp.raise_for_status()
         lines = resp.text.splitlines()
-
-        result = {}
-        current_name = None
-
-        for line in lines:
-            if line.startswith("#EXTINF"):
-                for name in CHANNELS_TO_SERVE:
-                    if name in line:
-                        current_name = name
-                        break
-            elif line.startswith("http") and current_name:
-                result[current_name] = line.strip()
-                current_name = None
-
-        return result
+        for i, line in enumerate(lines):
+            if channel_name in line:
+                return lines[i+1] if i+1 < len(lines) else None
     except Exception as e:
-        print(f"[ERROR] Не удалось загрузить список каналов: {e}")
-        return {}
-
-
-def load_cache():
-    """Загружаем кеш из файла, если он свежий"""
-    if os.path.exists(CACHE_FILE):
-        mtime = os.path.getmtime(CACHE_FILE)
-        if time.time() - mtime < CACHE_TTL:
-            with open(CACHE_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-    return {}
-
-
-def save_cache(data):
-    with open(CACHE_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
+        print(f"Ошибка при получении канала {channel_name}: {e}")
+    return None
 
 @app.route("/channel/<name>.m3u8")
-def serve_channel(name):
-    cache = load_cache()
+def channel(name):
+    if name not in CHANNEL_MAP:
+        return Response("#EXTM3U\n# Канал не найден\n", mimetype="application/vnd.apple.mpegurl")
 
-    if not cache:
-        cache = fetch_channels()
-        if cache:
-            save_cache(cache)
+    channel_url = get_channel_url(CHANNEL_MAP[name])
+    if not channel_url:
+        return Response("#EXTM3U\n# Ссылка не найдена\n", mimetype="application/vnd.apple.mpegurl")
 
-    channel_name = name.replace("_", " ").upper()
+    m3u = f"#EXTM3U\n#EXTINF:-1,{CHANNEL_MAP[name]}\n{channel_url}\n"
+    return Response(m3u, mimetype="application/vnd.apple.mpegurl")
 
-    for ch, url in cache.items():
-        if ch.upper() == channel_name:
-            return Response(f"#EXTM3U\n#EXTINF:-1,{ch}\n{url}", mimetype="application/vnd.apple.mpegurl")
-
-    return Response("#EXTM3U\n#EXTINF:-1,Канал не найден\n", mimetype="application/vnd.apple.mpegurl")
-
-
-@app.route("/channels")
-def list_channels():
-    cache = load_cache()
-    if not cache:
-        cache = fetch_channels()
-        if cache:
-            save_cache(cache)
-    return jsonify(cache)
-
+@app.route("/")
+def index():
+    return "Работает! Доступные каналы: /channel/tvc.m3u8, /channel/tvc+2.m3u8, /channel/tvc+4.m3u8"
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
+    app.run(host="0.0.0.0", port=5000)
