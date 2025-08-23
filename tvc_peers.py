@@ -47,7 +47,7 @@ if __name__ == "__main__":
     channel_id = 16  # базовый ID
 
     offsets = {
-        "tvc": 0,
+        "rentv": 7200,
         "tvc_plus2": 7200,
         "tvc_plus4": 10,
         "tvc_plus7": 36000,  # +1 час для Владивостока
