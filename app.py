@@ -8,7 +8,7 @@ USER_AGENT = "Dalvik/2.1.0 (Linux; U; Android 8.0.1;)"
 REFERRER = "https://peers.tv/"
 
 CHANNELS = {
-    "tvc": {"id": 16, "offset": 0},
+    "rentv": {"id": 16, "offset": 7200},
     "tvc_plus2": {"id": 16, "offset": 7200},
     "tvc_plus4": {"id": 16, "offset": 10},
     "tvc_plus7": {"id": 16, "offset": 36000},  # +1 час Владивосток
