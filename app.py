@@ -8,10 +8,12 @@ USER_AGENT = "Dalvik/2.1.0 (Linux; U; Android 8.0.1;)"
 REFERRER = "https://peers.tv/"
 
 CHANNELS = {
-    "rentv": {"id": 16, "offset": 7200},
+    "tvc": {"id": 16, "offset": 7200},
     "tvc_plus2": {"id": 16, "offset": 7200},
     "tvc_plus4": {"id": 16, "offset": 10},
     "tvc_plus7": {"id": 16, "offset": 36000},  # +1 час Владивосток
+    "ren_tv_hd": {"id": 16, "offset": 10},     # РЕН ТВ HD без сдвига
+    "rentv_plus4": {"id": 16, "offset": 10},  # РЕН ТВ +4
 }
 
 def get_token():
