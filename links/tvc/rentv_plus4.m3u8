@@ -1,53 +1,57 @@
 #EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-TARGETDURATION:10
-#EXT-X-MEDIA-SEQUENCE:5953367
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:03+07:00
-#BYTEFOG-INF:size=4106108,id="segment-1764445353-05953367.ts"
-#EXTINF:5,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953367.ts
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:07+07:00
-#BYTEFOG-INF:size=4185256,id="segment-1764445353-05953368.ts"
-#EXTINF:5.08,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953368.ts
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:13+07:00
-#BYTEFOG-INF:size=3957212,id="segment-1764445353-05953369.ts"
-#EXTINF:4.8,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953369.ts
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:18+07:00
-#BYTEFOG-INF:size=4213832,id="segment-1764445353-05953370.ts"
-#EXTINF:5,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953370.ts
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:23+07:00
-#BYTEFOG-INF:size=4482296,id="segment-1764445353-05953371.ts"
-#EXTINF:5.56,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953371.ts
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:28+07:00
-#BYTEFOG-INF:size=3723340,id="segment-1764445353-05953372.ts"
-#EXTINF:4.52,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953372.ts
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:32+07:00
-#BYTEFOG-INF:size=4349756,id="segment-1764445353-05953373.ts"
+#EXT-X-MEDIA-SEQUENCE:5970358
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:26:19+07:00
+#BYTEFOG-INF:size=4348440,id="segment-1764476159-05970358.ts"
 #EXTINF:5.28,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953373.ts
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:38+07:00
-#BYTEFOG-INF:size=4020944,id="segment-1764445353-05953374.ts"
-#EXTINF:4.88,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953374.ts
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:43+07:00
-#BYTEFOG-INF:size=4415556,id="segment-1764445353-05953375.ts"
-#EXTINF:5.32,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953375.ts
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:49+07:00
-#BYTEFOG-INF:size=4188452,id="segment-1764445353-05953376.ts"
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970358.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:26:25+07:00
+#BYTEFOG-INF:size=3855128,id="segment-1764476159-05970359.ts"
+#EXTINF:4.68,no desc
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970359.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:26:30+07:00
+#BYTEFOG-INF:size=4156304,id="segment-1764476159-05970360.ts"
 #EXTINF:5,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953376.ts
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:53+07:00
-#BYTEFOG-INF:size=3679160,id="segment-1764445353-05953377.ts"
-#EXTINF:4.56,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953377.ts
-#EXT-X-PROGRAM-DATE-TIME:2025-11-30T05:18:57+07:00
-#BYTEFOG-INF:size=4383408,id="segment-1764445353-05953378.ts"
-#EXTINF:5.32,no desc
-http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251130/segment-1764445353-05953378.ts
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970360.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:26:35+07:00
+#BYTEFOG-INF:size=3943676,id="segment-1764476159-05970361.ts"
+#EXTINF:4.8,no desc
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970361.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:26:39+07:00
+#BYTEFOG-INF:size=4519896,id="segment-1764476159-05970362.ts"
+#EXTINF:5.52,no desc
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970362.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:26:45+07:00
+#BYTEFOG-INF:size=3597944,id="segment-1764476159-05970363.ts"
+#EXTINF:4.36,no desc
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970363.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:26:49+07:00
+#BYTEFOG-INF:size=4443568,id="segment-1764476159-05970364.ts"
+#EXTINF:5.4,no desc
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970364.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:26:54+07:00
+#BYTEFOG-INF:size=4233384,id="segment-1764476159-05970365.ts"
+#EXTINF:5.12,no desc
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970365.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:26:59+07:00
+#BYTEFOG-INF:size=4302004,id="segment-1764476159-05970366.ts"
+#EXTINF:5.2,no desc
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970366.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:27:05+07:00
+#BYTEFOG-INF:size=3625956,id="segment-1764476159-05970367.ts"
+#EXTINF:4.44,no desc
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970367.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:27:10+07:00
+#BYTEFOG-INF:size=4117576,id="segment-1764476159-05970368.ts"
+#EXTINF:5,no desc
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970368.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:27:15+07:00
+#BYTEFOG-INF:size=3788388,id="segment-1764476159-05970369.ts"
+#EXTINF:4.6,no desc
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970369.ts
+#EXT-X-PROGRAM-DATE-TIME:2025-12-01T05:27:19+07:00
+#BYTEFOG-INF:size=4882548,id="segment-1764476159-05970370.ts"
+#EXTINF:5.88,no desc
+http://hls.peers.tv/hls/ren_tv_hd/16/copy_a/20251201/segment-1764476159-05970370.ts
 
